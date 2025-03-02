@@ -5,7 +5,7 @@ from langchain.chains import LLMChain
 import openai
 
 # Function to calculate calories and macronutrients
-def calculate_calories(weight, height, age, gender, activity_level):
+def calculate_calories(weight, height, age, gender, activity_level,veg):
     if gender.lower() == "male":
         bmr = 10 * weight + 6.25 * height - 5 * age + 5
     elif gender.lower() == "female":
@@ -34,7 +34,8 @@ def calculate_calories(weight, height, age, gender, activity_level):
         "calories": round(tdee, 2),
         "protein": round(protein_grams, 2),
         "fat": round(fat_grams, 2),
-        "carbs": round(carb_grams, 2)
+        "carbs": round(carb_grams, 2),
+        "veg":veg
     }
 
 # Streamlit UI setup
@@ -48,6 +49,7 @@ with st.sidebar.form("Diet Details"):
     height = st.number_input("Height (cm):", min_value=100.0, max_value=250.0, step=0.1)
     age = st.number_input("Age (years):", min_value=10, max_value=100, step=1)
     gender = st.selectbox("Gender:", ["Male", "Female"])
+    veg = st.selectbox("Veg or Non veg:", ["Vegetarian", "Non vegetarian"])
     activity_level = st.selectbox(
         "Activity Level:",
         ["Sedentary", "Light", "Moderate", "Active", "Very Active"]
@@ -73,7 +75,7 @@ else:
 
 # Generate diet plan if form submitted
 if submitted and st.session_state.currentkey:
-    macros = calculate_calories(weight, height, age, gender, activity_level)
+    macros = calculate_calories(weight, height, age, gender, activity_level,veg)
 
     # Define prompt template for LangChain
     llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.5, openai_api_key=st.session_state.currentkey)
@@ -84,10 +86,10 @@ if submitted and st.session_state.currentkey:
     - Fat: {fat} g
     - Carbs: {carbs} g
 
-    Create a personalized South Indian diet plan for a day including breakfast, lunch, dinner, and snacks.
+    Create a personalized South Indian diet plan for a day including breakfast, lunch, dinner, and snacks. and the person is a {veg} guy
     """
     prompt = PromptTemplate(
-        input_variables=["calories", "protein", "fat", "carbs"],
+        input_variables=["calories", "protein", "fat", "carbs","veg"],
         template=template
     )
     chain = LLMChain(llm=llm, prompt=prompt)
