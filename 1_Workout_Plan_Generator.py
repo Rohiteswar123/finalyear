@@ -75,6 +75,8 @@ if st.session_state.currentkey:
 
 
 if st.session_state.currentkey:
+    age= st.number_input("Enter your age",min_value=1,max_value=100,step=1)
+    weight = st.number_input("Enter your weight",min_value=1,max_value=500,step=1)
     weeks = st.number_input("How long should the program be (weeks)",min_value=1,max_value=12,step=1)
     days = st.number_input("how many days per week?",min_value=1,max_value=7,step=1)
     accessory = st.number_input("how many accessory lifts per session",min_value=0,max_value=5,step=1)
@@ -96,7 +98,7 @@ if st.session_state.currentkey:
             
             llm = ChatOpenAI(model='gpt-3.5-turbo',temperature=0.5,openai_api_key=st.session_state.currentkey)
             template = """
-            Can you create a strength training program that focuses on back squat, bench press, and conventional deadlift
+            Can you create a strength training program that focuses on back squat, bench press, and conventional deadlift for a person with age {age} and weight {weight}
 
             number of sessions each week: {days}
 
@@ -117,12 +119,12 @@ if st.session_state.currentkey:
 
             
             promp = PromptTemplate(
-                input_variables=['days','weeks','squat','units','bench','deadlift','accessory','personalprefrences'],
+                input_variables=['days','weeks','squat','units','bench','deadlift','accessory','personalprefrences','age','weight'],
                 template=template
             )
 
             chain = LLMChain(llm=llm,prompt=promp)
-            output = chain.run({'days':days,'weeks':weeks,'squat':squat,'units':units,'bench':bench,'deadlift':deadlift,'accessory':accessory,'personalprefrences':personalprefrences})
+            output = chain.run({'days':days,'weeks':weeks,'squat':squat,'units':units,'bench':bench,'deadlift':deadlift,'accessory':accessory,'personalprefrences':personalprefrences,'age':age,'weight':weight})
             st.write(output)
             st.write('******************')
 

@@ -75,11 +75,14 @@ if st.session_state.currentkey:
 
 
 if st.session_state.currentkey:
-    question_list.append('Select a question')
-    for question in questions:
-        question_list.append(question['question'])
+   
 
-    option = st.selectbox('Select a question',question_list,placeholder='Select a question')
+    option = st.text_area('Enter your question')
+    weight = st.number_input('Enter your weight(kg)',min_value=0.0)
+    age = st.number_input('Enter your age',min_value=0.0)
+    gender = st.selectbox('Select your gender', ['Male', 'Female'])
+    personalprefrences=st.text_area('Choose your personal preferences or any other information you would like to share')
+    
 
     if option != 'Select a question':
 
@@ -90,14 +93,15 @@ if st.session_state.currentkey:
             with st.spinner("Answering your question..."):
                 llm = ChatOpenAI(model='gpt-3.5-turbo',temperature=0.5,openai_api_key=st.session_state.currentkey)
                 template = """
-                {option}
+                 Answer this fitness question regarding a person with weight {weight}kg and age {age} gender {gender} and question is {option}
                 """
                 promp = PromptTemplate(
-                    input_variables=['option'],
+                    input_variables=['option', 'weight', 'age', 'gender'],
                     template=template
                 )
                 chain = LLMChain(llm=llm, prompt=promp)
-                output = chain.run({'option':option})
+                output = chain.run({'option':option,'weight':weight,'age':age,'gender':gender})
+                
             st.write(output)
             st.session_state.generate = False
 
